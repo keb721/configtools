@@ -125,7 +125,7 @@ program tip4p
   cell(3) = dumh(3,3)
 
   ! write header of config file
-  write(*,'(a38)')'tip4p configuration - generated from config.xmol'
+  write(*,'(a38)')trim(style)//' configuration'
   write(*,'(2i10)')0,3
   write(*,'(3f20.10)')cell(1),0.0_dp,0.0_dp
   write(*,'(3f20.10)')0.0_dp,cell(2),0.0_dp
