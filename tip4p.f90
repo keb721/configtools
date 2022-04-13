@@ -23,7 +23,7 @@ program tip4p
   real(kind=dp),Parameter :: Pi = 3.141592653589793238462643383279502884197_dp
 
   ! integers/counters
-  integer :: ierr,i,l,foundcount,found_this_pass,k,idim,N,j
+  integer :: i,l,foundcount,found_this_pass,k,idim,N,j
 
   ! vectors required for doing the geometry
   real(kind=dp),dimension(3)   :: vec1,vec2,vec3,vec4,cell,oh1,oh2
@@ -32,12 +32,14 @@ program tip4p
   ! temporary matrix of cell vectors
   real(kind=dp),dimension(3,3) :: dumh
 
-  ! Distances OH and OM to use in the TIP4P model
+  ! Distance OH common to all TIP4P variants 
   real(kind=dp),parameter :: OH_length = 0.9572_dp
-  real(kind=dp),parameter :: OM_length = 0.15_dp 
 
   ! H - O - H bond angle required in radians
   real(kind=dp),parameter :: HOH_angle = 104.52_dp*Pi/180.0_dp
+  
+  ! Distance OM to use for the current TIP4P variant
+  real(kind=dp) :: OM_length = 0.15_dp 
 
   character(1) :: elemid   ! chemical symbol for the current atom
   character(1) :: dumchar  ! dummy character for cell comment line
@@ -48,14 +50,73 @@ program tip4p
   real(kind=dp) :: theta,costheta  ! current bond angle and cosine thereof
   real(kind=dp) :: mag_oh1,mag_oh2 ! length of O-H bonds before correction
 
-  open(unit=25,file='config.xmol',status='old',iostat=ierr)
-  if (ierr/=0) stop 'Error opening config.xmol'
+  integer                        :: iarg,idata,ierr=0
+  integer                        :: num_args
+  character(30), dimension(0:10) :: command_line
+  character(30)                  :: filename, style
+
+
+  ! check that there are two arguments.
+  num_args = iargc()
+
+  if (num_args/=2) then
+     write(0,*)
+     write(0,*) '                T I P 4 P                     '
+     write(0,*)
+     write(0,*) '    Usage: tip4p <xmolfile> <tip4p_style>     '
+     write(0,*)
+     write(0,*) '    D. Quigley - University of Warwick        '
+     write(0,*)
+     stop
+  end if
+
+  ! get command line arguments
+  do iarg = 1, num_args
+     call getarg(iarg,command_line(iarg))
+  end do
+
+  filename = trim(command_line(1))
+  style    = trim(command_line(2))
+  
+  ! open specified input file, bail if it's not there
+  open(unit=25,file=trim(filename),status='old',iostat=ierr)
+  if (ierr/=0) stop 'Error opening specified xmol file for input'
+
+  ! set OM_length to use
+  select case (trim(style))
+  case ('tip4p/2005')
+     OM_length = 0.1546_dp
+  case ('tip4p/Ice')
+     OM_length = 0.1577_dp
+  case ('tip4p')
+     OM_length = 0.1500_dp
+  case default
+     write(*,*)'Unknown TIP4P variant. Select either:'
+     write(*,*)' tip4p/2005'
+     write(*,*)' tip4p/Ice'
+     write(*,*)' tip4p'
+     stop
+  end select
+
 
   ! read the number of atoms - this must be the total number of O plus H
   ! sites - does not include the M sites.
-  read(25,*) N
-  read(25,*) dumchar,dumh           ! blank comment line in xmol format
+  read(25,*,iostat=ierr) N
+  if (ierr/=0) then
+     stop 'Input xmolfile does not contain integer number of atoms on line 1'
+  endif
 
+  ! sometimes there's a character before the cell matrix
+  read(25,*,iostat=ierr) dumchar, dumh           ! blank comment line in xmol format
+  if (ierr/=0) then
+     rewind(25)
+     read(25,*)
+     read(25,*,iostat=ierr) dumh
+     if (ierr/=0) then
+        stop 'Could not extract matrix of cell vectors from line 2 of xmolfile'
+     end if
+  end if
+  
   ! specify cell dimensions here - NB orthorhombic only for now
   cell(1) = dumh(1,1)
   cell(2) = dumh(2,2)
@@ -81,7 +142,8 @@ program tip4p
      found_this_pass = 0  ! found no oxygens yet on this pass
 
      do k = 1,N
-        read(25,*)elemid,vec1
+        read(25,*,iostat=ierr)elemid,vec1
+        if (ierr/=0) stop 'Unexpectedly reached end of xmolfile'
         if ((elemid/='H').and.(elemID/='O')) then
            write(*,*)'Error - found element of type '//elemid//' in xmol file.'
            write(*,*)'Input file must contain only oxygen and hydrogen.'
