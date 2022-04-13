@@ -55,7 +55,9 @@ program tip4p
   character(30), dimension(0:10) :: command_line
   character(30)                  :: filename, style
 
+  integer,parameter :: xml = 25 ! unit number for input xmol file
 
+  
   ! check that there are two arguments.
   num_args = iargc()
 
@@ -79,7 +81,7 @@ program tip4p
   style    = trim(command_line(2))
   
   ! open specified input file, bail if it's not there
-  open(unit=25,file=trim(filename),status='old',iostat=ierr)
+  open(unit=xml,file=trim(filename),status='old',iostat=ierr)
   if (ierr/=0) stop 'Error opening specified xmol file for input'
 
   ! set OM_length to use
@@ -101,17 +103,17 @@ program tip4p
 
   ! read the number of atoms - this must be the total number of O plus H
   ! sites - does not include the M sites.
-  read(25,*,iostat=ierr) N
+  read(xml,*,iostat=ierr) N
   if (ierr/=0) then
      stop 'Input xmolfile does not contain integer number of atoms on line 1'
   endif
 
   ! sometimes there's a character before the cell matrix
-  read(25,*,iostat=ierr) dumchar, dumh           ! blank comment line in xmol format
+  read(xml,*,iostat=ierr) dumchar, dumh           ! blank comment line in xmol format
   if (ierr/=0) then
-     rewind(25)
-     read(25,*)
-     read(25,*,iostat=ierr) dumh
+     rewind(xml)
+     read(xml,*)
+     read(xml,*,iostat=ierr) dumh
      if (ierr/=0) then
         stop 'Could not extract matrix of cell vectors from line 2 of xmolfile'
      end if
@@ -135,14 +137,14 @@ program tip4p
 
   do i = 1,N
 
-     rewind(25)      ! back to start of xmol file and 
-     read(25,*) N    ! skip past header.
-     read(25,*)
+     rewind(xml)      ! back to start of xmol file and 
+     read(xml,*) N    ! skip past header.
+     read(xml,*)
 
      found_this_pass = 0  ! found no oxygens yet on this pass
 
      do k = 1,N
-        read(25,*,iostat=ierr)elemid,vec1
+        read(xml,*,iostat=ierr)elemid,vec1
         if (ierr/=0) stop 'Unexpectedly reached end of xmolfile'
         if ((elemid/='H').and.(elemID/='O')) then
            write(*,*)'Error - found element of type '//elemid//' in xmol file.'
@@ -159,15 +161,15 @@ program tip4p
         end if
      end do
 
-     rewind(25)
-     read(25,*) N
-     read(25,*)
+     rewind(xml)
+     read(xml,*) N
+     read(xml,*)
 
      secondbond = .false.  ! no O-H bonds as yet
 
      do j = 1,N
 
-        read(25,*)elemid,vec4
+        read(xml,*)elemid,vec4
         if (elemid /= 'H') cycle  ! only interested in bonds to H atoms 
 
         oh1 = vec4 - vec1  ! compute separation vector using PBCs
@@ -248,7 +250,7 @@ program tip4p
 
   end do
 
-  close(25)
+  close(xml)
 
 contains
 
