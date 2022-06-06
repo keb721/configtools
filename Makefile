@@ -26,7 +26,7 @@ INCLUDE   =
 %: %.o
 	$(F90) $(FFLAGS) $(INCLUDE)  -o $@ $^
 
-all :  tip4p
+all :  tip4p xmol2config
 
 TIP4P_OBJECTS = tip4p.o
 
@@ -34,8 +34,16 @@ tip4p : $(TIP4P_OBJECTS)
 	$(LD) -o $(bindir)/tip4p $(TIP4P_OBJECTS)
 
 
+X2C_OBJECTS = xmol2config.o
+
+xmol2config: $(X2C_OBJECTS)
+	$(LD) -o $(bindir)/xmol2config $(X2C_OBJECTS)
+
+
 clean : 
 
 	rm -f *.mod *.d *.il *.o work.*
 	rm -f $(bindir)/tip4p
+	rm -f $(bindir)/xmol2config
+
 
