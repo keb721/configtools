@@ -16,7 +16,5 @@ xmol2config
 
 Usage: `xmol2config <xmolfile>`
 
-Reads specified xmol file and prints equivalent DL_POLY CONFIG file to   
-to stdout. Expects to find the matrix of cell vectors on the comment     
-line of the input xmol file, listed as 9 components.                     
+Reads specified xmol file and prints equivalent DL_POLY CONFIG file to stdout. Expects to find the matrix of cell vectors on the comment line of the input xmol file, listed as 9 components.                     
 
