@@ -4,12 +4,15 @@ Various tools to manipulate configurations of atoms/molecules for input to simul
 tip4p
 -----
 
-Usage : `tip4p <xmolfile> <style>`
+Usage : `tip4p <xmolfile> <tip4p_style> <output_style>`
 
 Reads an xmol file containing (1) a list of cell vectors on line 2 and (2) a list of coordinates
 for oxygen and hydrogen atoms in any order. Adjusts and outputs these to be consistent with the tip4p
-rigid water model with style being either tip4p, tip4p/Ice or tip4p/2005. Output includes the coordinates
-of the massless charge site in the H-O-H bisector.
+rigid water model with style being either tip4p, tip4p/Ice, tip4p/2005 or tip4p/long (recommended 
+parameters for use with long range Coulombic solver). This can output for either dlpoly, gromacs, 
+lammpsm (output includes the coordinates of the massless charge site in the H-O-H bisector), or 
+lammps (output only includes oxygens and hydrogens). By default the gromacs topolgy file is written as 
+``tip4p_gromacs.top''.
 
 xmol2config
 -----------
