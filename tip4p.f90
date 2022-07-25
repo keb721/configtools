@@ -281,7 +281,7 @@ program tip4p
         call write_gromacs_config(l,mol,vec1,vec2,vec3,vec4,qO,qH,O_mass,H_mass,gro)
      end if
        
-     if (foundcount==N*third) exit  ! found all molecules
+     if (foundcount==N/3) exit  ! found all molecules
 
   end do
 
