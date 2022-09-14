@@ -377,7 +377,7 @@ contains
      write(*,*) 
      ! define atoms with their masses
      write(*,*) 
-     write(*,*)'masses'
+     write(*,*)'Masses'
      write(*,*)
      write(*,'(i1,a1,f12.8,a4)')1,' ', O_mass, ' # O'
      write(*,'(i1,a1,f12.8,a4)')2,' ', H_mass, ' # H'
@@ -387,7 +387,7 @@ contains
 
      ! write atomic positions
      write(*,*)
-     write(*,*)'atoms'
+     write(*,*)'Atoms'
      write(*,*)'# id mol type  charge         x            y            z ' 
      
     return
@@ -401,7 +401,7 @@ contains
      real(kind=dp),dimension(3),intent(in) :: vec1,vec2,vec3,vec4     
      real(kind=dp),intent(in)              :: qO,qH,qM
      logical,intent(in)                    :: Ms
-     character(51)                         :: form = '(i4,a1,i3,a2,i1,a2,f9.6,a1,f12.8,a1,f12.8,a1,f12.8)'
+     character(51)                         :: form = '(i5,a1,i5,a2,i1,a2,f9.6,a1,f12.8,a1,f12.8,a1,f12.8)'
      
      write(*,form)l,' ',mol,'  ',1,'  ',qO,' ',vec1(1),' ',vec1(2),' ',vec1(3)
      write(*,form)l+1,' ',mol,'  ',2,'  ',qH,' ',vec2(1),' ',vec2(2),' ',vec2(3)
@@ -584,7 +584,7 @@ contains
     write(gro,*)
     
     ! Write angles information
-    write(gro,*)'[ Angles ]'
+    write(gro,*)'[ angles ]'
     write(gro,*)'; atom1 atom2 atom3'
     
     do i = 1, N, 4
